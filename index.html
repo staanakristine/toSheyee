@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para sayo, Tropa ko!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fff0f3;
+            --heart-color: #ff4d6d;
+            --envelope-color: #ffb3c1;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            overflow: hidden; font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .bg-element {
+            position: absolute;
+            top: -10%;
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        #game-ui {
+            position: fixed; top: 20px; text-align: center; z-index: 100;
+            width: 100%; color: var(--heart-color);
+        }
+
+        .game-heart {
+            position: absolute; font-size: 35px; cursor: pointer;
+            user-select: none; transition: transform 0.2s;
+            z-index: 101;
+        }
+
+        #envelope-container {
+            display: none; position: relative; width: 300px; height: 200px;
+            background: var(--envelope-color); border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer; transition: transform 0.5s;
+            margin-top: 20%; 
+            z-index: 10;
+            margin-top: 100%;
+        }
+
+        #envelope-container::before { 
+            content: ""; position: absolute; top: -100px; left: 0;
+            border-left: 150px solid transparent; border-right: 150px solid transparent;
+            border-bottom: 100px solid var(--envelope-color);
+            transition: transform 0.5s; transform-origin: bottom; z-index: 4;
+        }
+
+        .open #envelope-container::before { transform: rotateX(180deg); z-index: 1; }
+
+        .letter {
+            position: absolute; bottom: 10px; left: 10px; right: 10px;
+            background: white; padding: 20px; border-radius: 5px;
+            height: 0; overflow: hidden; transition: height 1s 0.5s, bottom 1s 0.5s;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            text-align: center; z-index: 3;
+        }
+
+        .open .letter { height: auto; bottom: 100px; }
+
+        #bouquet-display {
+            display: none; text-align: center; animation: zoomIn 1s ease-out forwards;
+            z-index: 10;
+        }
+
+        #bouquet {
+            display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+            max-width: 600px; margin: 0 auto; 
+        }
+
+        .flower {
+            font-size: 80px; 
+            margin: 10px; 
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .btn-surprise {
+            background: var(--heart-color); color: white; border: none;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer;
+            font-family: 'Poppins'; margin-top: 15px;
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 { font-family: 'Dancing Script', cursive; color: #c9184a; font-size: 1.8rem; margin: 10px 0; }
+        p { font-size: 0.95rem; color: #590d22; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <div id="game-ui">
+        <h2 id="instruction">Catch the key, sabay lunok! 🗝️</h2>
+        <p>Score: <span id="score">0</span>/3</p>
+    </div>
+
+    <div id="main-wrapper">
+        <div id="envelope-container" onclick="openLetter()">
+            <div class="letter" id="theLetter">
+                <h1>HAPPY VALENTINE'S, SHAY!!</h1>
+                <p>I want you to know that I'll always be proud of you no matter what.</p>
+                <p>Wag kana ma pressure, okay? Smile na!!</p>
+                <p><strong>I love you so much!</strong></p>
+                <button class="btn-surprise" onclick="showBouquet(event)">Click for a surprise! 💐</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bouquet-display">
+        <div id="bouquet">
+            <div class="flower">🌸</div><div class="flower">🌺</div>
+            <div class="flower">🌻</div><div class="flower">🌷</div>
+            <div class="flower">🌹</div><div class="flower">🥀</div>
+            <div class="flower">🌼</div><div class="flower">💐</div>
+            <div class="flower">🌸</div><div class="flower">🌺</div>
+            <div class="flower">🌻</div><div class="flower">🌷</div>
+            <div class="flower">🌹</div><div class="flower">💖</div>
+        </div>
+        <h1>Bye Bye/h1>
+        <p>Poknat!</p>   
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="BeWithYou.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let score = 0;
+        const targetScore = 3;
+        const music = document.getElementById('bgMusic');
+
+        function spawnHeart() {
+            if (score >= targetScore) return;
+
+            const heart = document.createElement('div');
+            heart.className = 'game-heart';
+            heart.innerHTML = '🗝️';
+            heart.style.left = Math.random() * 80 + 10 + 'vw';
+            heart.style.top = Math.random() * 80 + 10 + 'vh';
+            
+            heart.onclick = () => {
+                score++;
+                document.getElementById('score').innerText = score;
+                heart.remove();
+                
+                if (score === 1) music.play().catch(e => console.log("Music blocked"));
+
+                if (score >= targetScore) {
+                    document.getElementById('game-ui').style.display = 'none';
+                    document.getElementById('envelope-container').style.display = 'block';
+                } else {
+                    spawnHeart();
+                }
+            };
+            document.body.appendChild(heart);
+        }
+
+        function openLetter() {
+            document.getElementById('main-wrapper').classList.add('open');
+        }
+
+        function startBgAnimation() {
+            const elements = ['🌸', '💖', '✨', '🌹', '🌷'];
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.className = 'bg-element';
+                el.innerHTML = elements[Math.floor(Math.random() * elements.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                el.style.opacity = Math.random();
+                document.body.appendChild(el);
+
+     
+                setTimeout(() => { el.remove(); }, 5000);
+            }, 300);
+        }
+
+        function showBouquet(e) {
+            e.stopPropagation();
+            document.getElementById('main-wrapper').style.display = 'none';
+            document.getElementById('bouquet-display').style.display = 'block';
+            startBgAnimation(); 
+        }
+
+        spawnHeart();
+    </script>
+</body>
+</html>
